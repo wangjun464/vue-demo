@@ -25,7 +25,9 @@
 <script>
 export default {
     data(){
-        return {personName:'阿猫'}
+        return {
+            personName:'阿猫',
+        };
     },
     methods:{
         doSubmit(){
