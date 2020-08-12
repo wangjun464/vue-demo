@@ -5,7 +5,7 @@
             <ep-input v-model="personName"></ep-input>
         </div>
         <div class="row">
-            <label>出生年月</label>
+            <label>出生年月是{{birthDate}}</label>
             <ep-calender v-model="birthDate"></ep-calender>
         </div>
         <div class="row">

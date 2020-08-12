@@ -34,11 +34,11 @@ export default {
       // 头部分
       let template = `
                 <div class="header">
-                <div class="left" name="pre">&lt;</div>
-                <div class="title" name="title">
+                <div class="left">&lt;</div>
+                <div class="title">
                 ${year}年${month}月
                 </div>
-                <div class="right" name="next">&gt;</div>
+                <div class="right">&gt;</div>
                 </div>
             `;
       template += "<div class='container day-view'><ul>";
@@ -71,7 +71,7 @@ export default {
         }
         template += `
           <li class='${clazz}' 
-              name='item-click' val='${i}'> ${i} 
+               val='${i}'> ${i} 
           </li>\n
           `;
       }
@@ -81,9 +81,128 @@ export default {
       });
       template += "</ul></div>";
       this.$refs.mycalendar.innerHTML = template;
+
+      $$(".left", this.$refs.mycalendar).bind("click", () => {
+        if (month == 1) {
+          month = 12;
+          year -= 1;
+        } else {
+          month -= 1;
+        }
+        this.selectDayView(year, month);
+      });
+
+      $$(".title", this.$refs.mycalendar).bind("click", () => {
+        this.selectMonthView(year);
+      });
+
+      $$(".right", this.$refs.mycalendar).bind("click", () => {
+        if (month == 12) {
+          year -= -1;
+          month = 1;
+        } else {
+          month = parseInt(month) + 1;
+        }
+        this.selectDayView(year, month);
+      });
+
+      $$(".click",this.$refs.mycalendar).bind("click",(event)=>{
+          let day=event.target.getAttribute("val");
+          this.selectYear=year;
+          this.selectMonth=month;
+          this.selectDay=day;
+        //   this.value=year+""+month+""+day;
+          this.$refs.myinput.value=`${year}${month}${day}`;
+          this.doit();
+          this.$refs.mycalendar.innerHTML="";
+          this.isOpen=false;
+      });
     },
-    selectMonthView(year) {},
-    selectYearView(year) {},
+
+
+    selectMonthView(year) {
+        // 头部分
+    let template =
+        '<div class="header">' +
+        '   <div class="left">&lt;</div>' +
+        '   <div class="title">' + year + '年</div>' +
+        '   <div class="right">&gt;</div>' +
+        '</div>';
+
+    template += "<div class='container month-view'><ul>";
+
+    // 内容部分
+    for (var i = 1; i <= 12; i++) {
+        var clazz = 'click item';
+        if (year == this.selectYear && i == this.selectMonth) {
+            clazz += " selected";
+        }
+        template += "<li class='" + clazz + "' val='" + i + "'>" + i + "</li>";
+    }
+
+    template += "</ul></div>";
+
+    this.$refs.mycalendar.innerHTML=template;
+
+    $$('.left',this.$refs.mycalendar).bind("click",()=>{
+        this.selectMonthView(year-1);
+    });
+
+    $$('.right',this.$refs.mycalendar).bind("click",()=>{
+        this.selectMonthView(year - -1);
+    });
+
+    $$('.title',this.$refs.mycalendar).bind("click",()=>{
+        this.selectYearView(year);
+    });
+
+    $$(".click",this.$refs.mycalendar).bind("click",(event)=>{
+          this.selectDayView(year,event.target.getAttribute("val"));
+      });
+
+    },
+
+
+    selectYearView(year) {
+        let decYears = $date.getDecYears(year);
+
+        // 头部分
+        let template =
+            '<div class="header">' +
+            '   <div class="left">&lt;</div>' +
+            '   <div class="title">' + decYears[0] + ' - ' + decYears[9] + '</div>' +
+            '   <div class="right">&gt;</div>' +
+        '</div>';
+
+        template += "<div class='container year-view'><ul>";
+
+        template += "<li class='none item gray'>" + (decYears[0] - 1) + "</li>";
+        for (var i = 0; i < decYears.length; i++) {
+            var clazz = 'click item';
+            if (decYears[i] == this.selectYear) {
+                clazz += " selected";
+            }
+            template += "<li class='" + clazz + "' val='" + decYears[i] + "'>" + decYears[i] + "</li>";
+        }
+        template += "<li class='none item gray'>" + (decYears[9] + 1) + "</li>";
+
+        template += "</ul></div>";
+
+        this.$refs.mycalendar.innerHTML=template;
+
+        $$('.left',this.$refs.mycalendar).bind("click",()=>{
+            this.selectYearView(year-10);
+        });
+
+        $$('.right',this.$refs.mycalendar).bind("click",()=>{
+            this.selectYearView(year - -10);
+        });
+
+        $$(".click",this.$refs.mycalendar).bind("click",(event)=>{
+          this.selectMonthView(event.target.getAttribute("val"));
+        });
+
+    },
   },
   mounted() {
     // let dd=this.value;
@@ -100,9 +219,12 @@ export default {
       // alert(1);
       if (this.isOpen) {
         //关闭
+        this.$refs.mycalendar.innerHTML="";
+        this.isOpen=false;
       } else {
         //打开
         this.selectDayView(this.selectYear, this.selectMonth);
+        this.isOpen=true;
       }
     });
   },
