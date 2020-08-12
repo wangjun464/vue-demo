@@ -11,6 +11,9 @@ import './directives/index';
 //引入公共组件
 import './components/index';
 
+//引入公共样式
+import '@yelloxing/normalize.css';
+
 
 new Vue({
     el: document.getElementById('root'),

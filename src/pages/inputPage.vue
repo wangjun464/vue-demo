@@ -6,7 +6,7 @@
         </div>
         <div class="row">
             <label>出生年月</label>
-            <ep-calender></ep-calender>
+            <ep-calender v-model="birthDate"></ep-calender>
         </div>
         <div class="row">
             <label>国籍</label>
@@ -27,6 +27,7 @@ export default {
     data(){
         return {
             personName:'阿猫',
+            birthDate:"19981001"
         };
     },
     methods:{
