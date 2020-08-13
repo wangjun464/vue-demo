@@ -1,8 +1,8 @@
 <template>
   <div class="calendar-root-view">
-    <input readonly ref="myinput" type="text" :value="value" @input="doit()" />
+    <input readonly type="text" ref="myinput" />
     <div ref="mycalendar" class="calendar-view">
-      <!-- 日历组件切换视图 -->
+      <!--日历组件切换视图的地方-->
     </div>
   </div>
 </template>
@@ -14,35 +14,37 @@ export default {
   props: ["value"],
   data() {
     return {
-      //选择的日期
+      // 选择的日期
       selectYear: -1,
       selectMonth: -1,
       selectDay: -1,
-      //记录日期是否开了
+      // 记录日历是否打开了
       isOpen: false,
-      //今天
+      // 今天
       todayYear: -1,
       todayMonth: -1,
       todayDay: -1,
     };
   },
   methods: {
-    doit() {
-      this.$emit("input", this.$refs.myinput.value);
+    doit(year, month, day) {
+      this.$emit("input", `${year}${month}${day}`);
     },
-
+    // 选择天的视图
     selectDayView(year, month) {
       // 头部分
       let template = `
-                <div class="header">
-                <div class="left">&lt;</div>
-                <div class="title">
-                ${year}年${month}月
-                </div>
-                <div class="right">&gt;</div>
-                </div>
-            `;
+        <div class="header">
+          <div class="left">&lt;</div>
+          <div class="title">
+            ${year}年${month}月
+          </div>
+          <div class="right">&gt;</div>
+        </div>
+      `;
+
       template += "<div class='container day-view'><ul>";
+
       ["日", "一", "二", "三", "四", "五", "六"].forEach(function (val) {
         template += "<li class='none item'>" + val + "</li>";
       });
@@ -54,8 +56,8 @@ export default {
 
       // 内容主体部分
       let days = $date.getMonthDays(year, month);
-      for (var i = 1; i <= days; i++) {
-        var clazz = "click item";
+      for (let i = 1; i <= days; i++) {
+        let clazz = "click item";
         if (
           year == this.selectYear &&
           month == this.selectMonth &&
@@ -66,23 +68,23 @@ export default {
         if (
           year == this.todayYear &&
           month == this.todayMonth &&
-          i == this.todayYear
+          i == this.todayDay
         ) {
           clazz += " today";
         }
-        template += `
-          <li class='${clazz}' 
-               val='${i}'> ${i} 
-          </li>\n
-          `;
+        template += `<li class='${clazz}' val='${i}'>${i}</li>`;
       }
+
       // 后置灰色
       $date.getNextDayArray(year, month).forEach(function (val) {
         template += "<li class='none item gray'>" + val + "</li>";
       });
+
       template += "</ul></div>";
+
       this.$refs.mycalendar.innerHTML = template;
 
+      // 点击‘上个月’按钮
       $$(".left", this.$refs.mycalendar).bind("click", () => {
         if (month == 1) {
           month = 12;
@@ -93,10 +95,12 @@ export default {
         this.selectDayView(year, month);
       });
 
+      // 点击'标题'进入选择月视图
       $$(".title", this.$refs.mycalendar).bind("click", () => {
         this.selectMonthView(year);
       });
 
+      // 点击‘下个月’按钮
       $$(".right", this.$refs.mycalendar).bind("click", () => {
         if (month == 12) {
           year -= -1;
@@ -107,20 +111,23 @@ export default {
         this.selectDayView(year, month);
       });
 
+      // 点击‘天’按钮
       $$(".click", this.$refs.mycalendar).bind("click", (event) => {
         let day = event.target.getAttribute("val");
+
+        // 日期天‘1’，‘3’这种变成‘01’、‘03’
         if (day.length <= 1) day = "0" + day;
+
         this.selectYear = year;
         this.selectMonth = month;
         this.selectDay = day;
-        //   this.value=year+""+month+""+day;
         this.$refs.myinput.value = `${year}年${month}月${day}日`;
-        this.doit();
+        this.doit(year, month, day);
         this.$refs.mycalendar.innerHTML = "";
         this.isOpen = false;
       });
     },
-
+    // 选择月的视图
     selectMonthView(year) {
       // 头部分
       let template =
@@ -147,28 +154,32 @@ export default {
 
       this.$refs.mycalendar.innerHTML = template;
 
+      // 点击‘上一年’按钮
       $$(".left", this.$refs.mycalendar).bind("click", () => {
         this.selectMonthView(year - 1);
       });
 
-      $$(".right", this.$refs.mycalendar).bind("click", () => {
-        this.selectMonthView(year - -1);
-      });
-
+      // 点击‘标题’按钮
       $$(".title", this.$refs.mycalendar).bind("click", () => {
         this.selectYearView(year);
       });
 
+      // 点击‘下一年’按钮
+      $$(".right", this.$refs.mycalendar).bind("click", () => {
+        this.selectMonthView(year - -1);
+      });
+
+      // 点击‘月’按钮
       $$(".click", this.$refs.mycalendar).bind("click", (event) => {
         this.selectDayView(year, event.target.getAttribute("val"));
       });
     },
-
+    // 选择年的视图
     selectYearView(year) {
       let decYears = $date.getDecYears(year);
 
       // 头部分
-      let template =
+      var template =
         '<div class="header">' +
         '   <div class="left">&lt;</div>' +
         '   <div class="title">' +
@@ -179,6 +190,7 @@ export default {
         '   <div class="right">&gt;</div>' +
         "</div>";
 
+      // 内容部分
       template += "<div class='container year-view'><ul>";
 
       template += "<li class='none item gray'>" + (decYears[0] - 1) + "</li>";
@@ -202,38 +214,45 @@ export default {
 
       this.$refs.mycalendar.innerHTML = template;
 
+      // 点击‘上 10 年’按钮
       $$(".left", this.$refs.mycalendar).bind("click", () => {
         this.selectYearView(year - 10);
       });
 
+      // 点击‘下 10 年’按钮
       $$(".right", this.$refs.mycalendar).bind("click", () => {
         this.selectYearView(year - -10);
       });
 
+      // 点击‘年’按钮
       $$(".click", this.$refs.mycalendar).bind("click", (event) => {
         this.selectMonthView(event.target.getAttribute("val"));
       });
     },
   },
   mounted() {
-    // let dd=this.value;
+    // '19491001'
+
     this.selectYear = this.value.substr(0, 4);
     this.selectMonth = this.value.substr(4, 2);
     this.selectDay = this.value.substr(6, 2);
 
+    this.$refs.myinput.value = `${this.selectYear}年${this.selectMonth}月${this.selectDay}日`;
+
+    // 初始化今天
     const today = new Date();
     this.todayYear = today.getFullYear();
     this.todayMonth = today.getMonth() + 1;
     this.todayDay = today.getDate();
 
+    // 初始化输入框点击方法
     $$(this.$refs.myinput).bind("click", () => {
-      // alert(1);
       if (this.isOpen) {
-        //关闭
+        // 关闭
         this.$refs.mycalendar.innerHTML = "";
         this.isOpen = false;
       } else {
-        //打开
+        // 打开日历视图
         this.selectDayView(this.selectYear, this.selectMonth);
         this.isOpen = true;
       }
@@ -251,7 +270,8 @@ export default {
 .calendar-root-view {
   display: inline-block;
   & > input {
-    background-image: url("../assets/calendar.png");
+    cursor: pointer;
+    background-image: url('../assets/calendar.png');
     background-size: auto 70%;
     background-repeat: no-repeat;
     background-position: right center;
@@ -298,6 +318,7 @@ export default {
 .calendar-view > .container > ul > li.click {
   cursor: pointer;
 }
+
 .calendar-view > .container > ul > li.none {
   cursor: no-drop;
 }
