@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="calendar-root-view">
     <input readonly ref="myinput" type="text" :value="value" @input="doit()" />
     <div ref="mycalendar" class="calendar-view">
       <!-- 日历组件切换视图 -->
@@ -30,6 +30,7 @@ export default {
     doit() {
       this.$emit("input", this.$refs.myinput.value);
     },
+
     selectDayView(year, month) {
       // 头部分
       let template = `
@@ -106,102 +107,112 @@ export default {
         this.selectDayView(year, month);
       });
 
-      $$(".click",this.$refs.mycalendar).bind("click",(event)=>{
-          let day=event.target.getAttribute("val");
-          this.selectYear=year;
-          this.selectMonth=month;
-          this.selectDay=day;
+      $$(".click", this.$refs.mycalendar).bind("click", (event) => {
+        let day = event.target.getAttribute("val");
+        if (day.length <= 1) day = "0" + day;
+        this.selectYear = year;
+        this.selectMonth = month;
+        this.selectDay = day;
         //   this.value=year+""+month+""+day;
-          this.$refs.myinput.value=`${year}${month}${day}`;
-          this.doit();
-          this.$refs.mycalendar.innerHTML="";
-          this.isOpen=false;
+        this.$refs.myinput.value = `${year}年${month}月${day}日`;
+        this.doit();
+        this.$refs.mycalendar.innerHTML = "";
+        this.isOpen = false;
       });
     },
-
 
     selectMonthView(year) {
-        // 头部分
-    let template =
+      // 头部分
+      let template =
         '<div class="header">' +
         '   <div class="left">&lt;</div>' +
-        '   <div class="title">' + year + '年</div>' +
+        '   <div class="title">' +
+        year +
+        "年</div>" +
         '   <div class="right">&gt;</div>' +
-        '</div>';
+        "</div>";
 
-    template += "<div class='container month-view'><ul>";
+      template += "<div class='container month-view'><ul>";
 
-    // 内容部分
-    for (var i = 1; i <= 12; i++) {
-        var clazz = 'click item';
+      // 内容部分
+      for (var i = 1; i <= 12; i++) {
+        var clazz = "click item";
         if (year == this.selectYear && i == this.selectMonth) {
-            clazz += " selected";
+          clazz += " selected";
         }
         template += "<li class='" + clazz + "' val='" + i + "'>" + i + "</li>";
-    }
+      }
 
-    template += "</ul></div>";
+      template += "</ul></div>";
 
-    this.$refs.mycalendar.innerHTML=template;
+      this.$refs.mycalendar.innerHTML = template;
 
-    $$('.left',this.$refs.mycalendar).bind("click",()=>{
-        this.selectMonthView(year-1);
-    });
-
-    $$('.right',this.$refs.mycalendar).bind("click",()=>{
-        this.selectMonthView(year - -1);
-    });
-
-    $$('.title',this.$refs.mycalendar).bind("click",()=>{
-        this.selectYearView(year);
-    });
-
-    $$(".click",this.$refs.mycalendar).bind("click",(event)=>{
-          this.selectDayView(year,event.target.getAttribute("val"));
+      $$(".left", this.$refs.mycalendar).bind("click", () => {
+        this.selectMonthView(year - 1);
       });
 
+      $$(".right", this.$refs.mycalendar).bind("click", () => {
+        this.selectMonthView(year - -1);
+      });
+
+      $$(".title", this.$refs.mycalendar).bind("click", () => {
+        this.selectYearView(year);
+      });
+
+      $$(".click", this.$refs.mycalendar).bind("click", (event) => {
+        this.selectDayView(year, event.target.getAttribute("val"));
+      });
     },
 
-
     selectYearView(year) {
-        let decYears = $date.getDecYears(year);
+      let decYears = $date.getDecYears(year);
 
-        // 头部分
-        let template =
-            '<div class="header">' +
-            '   <div class="left">&lt;</div>' +
-            '   <div class="title">' + decYears[0] + ' - ' + decYears[9] + '</div>' +
-            '   <div class="right">&gt;</div>' +
-        '</div>';
+      // 头部分
+      let template =
+        '<div class="header">' +
+        '   <div class="left">&lt;</div>' +
+        '   <div class="title">' +
+        decYears[0] +
+        " - " +
+        decYears[9] +
+        "</div>" +
+        '   <div class="right">&gt;</div>' +
+        "</div>";
 
-        template += "<div class='container year-view'><ul>";
+      template += "<div class='container year-view'><ul>";
 
-        template += "<li class='none item gray'>" + (decYears[0] - 1) + "</li>";
-        for (var i = 0; i < decYears.length; i++) {
-            var clazz = 'click item';
-            if (decYears[i] == this.selectYear) {
-                clazz += " selected";
-            }
-            template += "<li class='" + clazz + "' val='" + decYears[i] + "'>" + decYears[i] + "</li>";
+      template += "<li class='none item gray'>" + (decYears[0] - 1) + "</li>";
+      for (var i = 0; i < decYears.length; i++) {
+        var clazz = "click item";
+        if (decYears[i] == this.selectYear) {
+          clazz += " selected";
         }
-        template += "<li class='none item gray'>" + (decYears[9] + 1) + "</li>";
+        template +=
+          "<li class='" +
+          clazz +
+          "' val='" +
+          decYears[i] +
+          "'>" +
+          decYears[i] +
+          "</li>";
+      }
+      template += "<li class='none item gray'>" + (decYears[9] + 1) + "</li>";
 
-        template += "</ul></div>";
+      template += "</ul></div>";
 
-        this.$refs.mycalendar.innerHTML=template;
+      this.$refs.mycalendar.innerHTML = template;
 
-        $$('.left',this.$refs.mycalendar).bind("click",()=>{
-            this.selectYearView(year-10);
-        });
+      $$(".left", this.$refs.mycalendar).bind("click", () => {
+        this.selectYearView(year - 10);
+      });
 
-        $$('.right',this.$refs.mycalendar).bind("click",()=>{
-            this.selectYearView(year - -10);
-        });
+      $$(".right", this.$refs.mycalendar).bind("click", () => {
+        this.selectYearView(year - -10);
+      });
 
-        $$(".click",this.$refs.mycalendar).bind("click",(event)=>{
-          this.selectMonthView(event.target.getAttribute("val"));
-        });
-
+      $$(".click", this.$refs.mycalendar).bind("click", (event) => {
+        this.selectMonthView(event.target.getAttribute("val"));
+      });
     },
   },
   mounted() {
@@ -219,12 +230,12 @@ export default {
       // alert(1);
       if (this.isOpen) {
         //关闭
-        this.$refs.mycalendar.innerHTML="";
-        this.isOpen=false;
+        this.$refs.mycalendar.innerHTML = "";
+        this.isOpen = false;
       } else {
         //打开
         this.selectDayView(this.selectYear, this.selectMonth);
-        this.isOpen=true;
+        this.isOpen = true;
       }
     });
   },
@@ -237,13 +248,25 @@ export default {
 ----------------------------------------
 */
 
+.calendar-root-view {
+  display: inline-block;
+  & > input {
+    background-image: url("../assets/calendar.png");
+    background-size: auto 70%;
+    background-repeat: no-repeat;
+    background-position: right center;
+  }
+}
+
 .calendar-view {
+  position: absolute;
   width: 210px;
   user-select: none;
   background-color: rgb(233, 239, 241);
   line-height: 1.8em;
   text-align: center;
   box-shadow: 1px 2px 3px #79798d;
+  z-index: 1;
 }
 
 /* 头部 */
