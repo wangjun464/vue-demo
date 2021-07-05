@@ -45,4 +45,8 @@ module.exports = {
             aggregateTimeout: 300
         }
     }
+    // node: {
+    //     __dirname: false,
+    //     fs: true
+    // }
 };

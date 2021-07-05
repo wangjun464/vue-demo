@@ -2,21 +2,17 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 Vue.use(VueRouter);
 
-import inputPage from './pages/inputPage.vue';
-import outputPage from './pages/outputPage.vue';
+import index from './pages/index.vue'
+
 
 export default new VueRouter({
     routes:[{
-        name:'input',
-        path:'/input',
-        component:inputPage
-    },{
-        name:'output',
-        path:'/output',
-        component:outputPage
+        name:'index',
+        path:'/index',
+        component:index
     },{
         path:'/*',
-        redirect:'/input'
+        redirect:'/index'
     }]
 });
 
